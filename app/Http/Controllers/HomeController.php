@@ -24,8 +24,8 @@ class HomeController extends Controller
     public function index()
     {
         //return $this->getOperator();
-         
-        //return view('home');
+
+        return view('home');
     }
 
     public function getOperator($cellnumber)
@@ -42,34 +42,43 @@ class HomeController extends Controller
       $cellsubtring = substr($cell, 0, 4);
       if(ctype_digit($cell) && strlen($cell)==11)
       {
-        if(in_array($cellsubtring, $mtnArray))
+        $ifported = $this->checkIfPorted($cellnumber);
+        if($ifported["ported"])
         {
-          $cellOp = "MTN";
+        	$resultMessage = '<li class="list-group-item list-group-item-success"><strong>'.$ifported["cell"].'</strong> is on <strong>'.$ifported["network"].'</strong></li>';
+          return $resultMessage;
         }
-        else if(in_array($cellsubtring, $vodacomArray))
+        else
         {
-          $cellOp = "Vodacom";
-        }
-        else if(in_array($cellsubtring, $telkomArray))
-        {
-          $cellOp = "Telkom";
-        }
-        else if(in_array($cellsubtring, $cellcArray))
-        {
-          $cellOp = "CellC";
-        }
-        else {
-          $cellOp = "none";
-        }
-        if($cellOp != 'none')
-        {
-          $resultMessage = '<li class="list-group-item list-group-item-success"><strong>'.$cell.'</strong> is on <strong>'.$cellOp.'</strong></li>';
-          //$resultMessage = "<strong>".$cell."</strong> is on <strong>".$cellOp."</strong>";
-        }
-        else {
-          $resultMessage = '<li class="list-group-item list-group-item-success"><strong>We could not find a Mobile Operator for this number</strong></li>';
-        }
-        return $resultMessage; //['status'=>true, 'message'=>$resultMessage];
+          if(in_array($cellsubtring, $mtnArray))
+          {
+            $cellOp = "MTN";
+          }
+          else if(in_array($cellsubtring, $vodacomArray))
+          {
+            $cellOp = "Vodacom";
+          }
+          else if(in_array($cellsubtring, $telkomArray))
+          {
+            $cellOp = "Telkom";
+          }
+          else if(in_array($cellsubtring, $cellcArray))
+          {
+            $cellOp = "CellC";
+          }
+          else {
+            $cellOp = "none";
+          }
+          if($cellOp != 'none')
+          {
+            $resultMessage = '<li class="list-group-item list-group-item-success"><strong>'.$cell.'</strong> is on <strong>'.$cellOp.'</strong></li>';
+            //$resultMessage = "<strong>".$cell."</strong> is on <strong>".$cellOp."</strong>";
+          }
+          else {
+            $resultMessage = '<li class="list-group-item list-group-item-success"><strong>We could not find a Mobile Operator for this number</strong></li>';
+          }
+          return $resultMessage; //['status'=>true, 'message'=>$resultMessage];
+       }
       }
       else {
         $resultMessage = '<li class="list-group-item list-group-item-danger">Please enter 11 digit number</li>';
@@ -77,4 +86,29 @@ class HomeController extends Controller
       }
 
     }
+
+
+function checkIfPorted($cellNumber)
+{
+
+	$ported_numbers = array("27839188712"=>"Vodacom",
+	                        "27825642654"=>"MTN",
+							"27732555125"=>"Telkom",
+							"27843666564"=>"MTN",
+							"27715600012"=>"Vodacom");
+
+	if(array_key_exists($cellNumber, $ported_numbers))
+	{
+		$ported = true;
+		$cell = $cellNumber;
+		$network = $ported_numbers[$cellNumber];
+		return compact("ported", "cell", "network");
+	}
+	else
+	{
+		$ported = false;
+		return compact("ported");
+	}
+}
+
 }
